@@ -4,6 +4,7 @@ import (
 	"echo_api/auth"
 	"echo_api/models"
 
+	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -20,12 +21,28 @@ type UpdateUserRequest struct {
 	Acc_type int    `json:"acc_type"`
 }
 
+func (m CreateUserRequest) Validate() error {
+	return validation.ValidateStruct(&m,
+		validation.Field(&m.User, validation.Required, validation.Length(4, 32)),
+		validation.Field(&m.Password, validation.Required, validation.Length(4, 64)),
+		validation.Field(&m.Acc_type, validation.Required, validation.Min(1), validation.Max(4)),
+	)
+}
+
+func (m UpdateUserRequest) Validate() error {
+	return validation.ValidateStruct(&m,
+		validation.Field(&m.User, validation.Required, validation.Length(4, 32)),
+		validation.Field(&m.Password, validation.Required, validation.Length(4, 64)),
+		validation.Field(&m.Acc_type, validation.Required, validation.Min(1), validation.Max(4)),
+	)
+}
+
 type Service interface {
 	Get(ctx echo.Context, id int) (models.User, error)
 	Query(ctx echo.Context, offset, limit int) ([]models.User, error)
 	Create(ctx echo.Context, req CreateUserRequest) (models.User, error)
 	Update(ctx echo.Context, id int, req UpdateUserRequest) (models.User, error)
-	Delete(ctx echo.Context, id int) (bool, error)
+	Delete(ctx echo.Context, id int) error
 	Count(ctx echo.Context) (int, error)
 }
 
@@ -51,6 +68,9 @@ func (s service) Query(ctx echo.Context, offset, limit int) ([]models.User, erro
 }
 
 func (s service) Create(ctx echo.Context, req CreateUserRequest) (models.User, error) {
+	if err := req.Validate(); err != nil {
+		return models.User{}, err
+	}
 	hash, _ := auth.GenareteSaltedPassword([]byte(req.Password))
 	new_user := models.User{
 		Id:       0,
@@ -67,6 +87,9 @@ func (s service) Create(ctx echo.Context, req CreateUserRequest) (models.User, e
 }
 
 func (s service) Update(ctx echo.Context, id int, req UpdateUserRequest) (models.User, error) {
+	if err := req.Validate(); err != nil {
+		return models.User{}, err
+	}
 	hash, _ := auth.GenareteSaltedPassword([]byte(req.Password))
 	new_user := models.User{
 		Id:       id,
@@ -82,7 +105,7 @@ func (s service) Update(ctx echo.Context, id int, req UpdateUserRequest) (models
 	return new_user, nil
 }
 
-func (s service) Delete(ctx echo.Context, id int) (bool, error) {
+func (s service) Delete(ctx echo.Context, id int) error {
 	return s.repo.Delete(ctx, id)
 }
 

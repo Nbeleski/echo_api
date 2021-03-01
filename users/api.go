@@ -1,6 +1,7 @@
 package users
 
 import (
+	"database/sql"
 	"net/http"
 	"strconv"
 
@@ -9,6 +10,7 @@ import (
 	"echo_api/pkg/pagination"
 )
 
+//TODO: require jwt auth for some of the methods?
 func RegisterHandlers(service Service, e *echo.Echo, m ...echo.MiddlewareFunc) {
 	res := resource{service}
 
@@ -29,12 +31,11 @@ type resource struct {
 func (r resource) get(c echo.Context) error {
 	id, _ := strconv.Atoi(c.Param("id"))
 	user, err := r.service.Get(c, id)
-	if err != nil {
-		return err
-	}
-
-	if user.Id <= 0 {
+	if err == sql.ErrNoRows {
 		return c.String(http.StatusNotFound, "")
+	}
+	if err != nil {
+		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
 	return c.JSON(http.StatusOK, user)
@@ -99,7 +100,7 @@ func (r resource) update(c echo.Context) error {
 		return c.String(http.StatusInternalServerError, err.Error())
 	}
 
-	return c.JSON(http.StatusCreated, new_user)
+	return c.JSON(http.StatusOK, new_user)
 }
 
 func (r resource) delete(c echo.Context) error {
@@ -108,13 +109,12 @@ func (r resource) delete(c echo.Context) error {
 		return c.String(http.StatusBadRequest, "Id is an int\n")
 	}
 
-	deleted, err := r.service.Delete(c, id)
+	err = r.service.Delete(c, id)
+	if err == sql.ErrNoRows {
+		return c.String(http.StatusNotFound, "")
+	}
 	if err != nil {
 		return c.String(http.StatusInternalServerError, err.Error())
-	}
-
-	if !deleted {
-		return c.String(http.StatusNotFound, "")
 	}
 
 	return c.JSON(http.StatusOK, "")

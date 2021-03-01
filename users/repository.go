@@ -13,7 +13,7 @@ type Repository interface {
 	Query(ctx echo.Context, offset, limit int) ([]models.User, error)
 	Create(ctx echo.Context, user models.User) (int, error)
 	Update(ctx echo.Context, user models.User) error
-	Delete(ctx echo.Context, id int) (bool, error)
+	Delete(ctx echo.Context, id int) error
 }
 
 type repository struct {
@@ -41,9 +41,14 @@ func (r repository) Get(c echo.Context, id int) (models.User, error) {
 		return user, err
 	}
 
+	count := 0
 	for rows.Next() {
 		user.Id = id
 		rows.Scan(&user.User, &user.Password, &user.Acc_type)
+		count++
+	}
+	if count == 0 {
+		return user, sql.ErrNoRows
 	}
 
 	return user, err
@@ -110,25 +115,25 @@ func (r repository) Update(c echo.Context, user models.User) error {
 	return err
 }
 
-func (r repository) Delete(c echo.Context, id int) (bool, error) {
+func (r repository) Delete(c echo.Context, id int) error {
 	database, err := sql.Open(r.dbtype, r.dbfile)
 	if err != nil {
-		return false, err
+		return err
 	}
 	statement, err := database.Prepare("DELETE FROM tab_users WHERE id=?")
 	if err != nil {
-		return false, err
+		return err
 	}
 	res, err := statement.Exec(id)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	count, err := res.RowsAffected()
 	if count > 0 {
-		return true, nil
+		return nil
 	}
-	return false, nil
+	return sql.ErrNoRows
 }
 
 func (r repository) Count(c echo.Context) (int, error) {
