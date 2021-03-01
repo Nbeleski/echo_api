@@ -38,7 +38,7 @@ func TestAPI(t *testing.T) {
 		{"update verify", "GET", "/users/1", "", nil, http.StatusOK, `*uptest*`},
 		{"update input error", "PUT", "/users/1", `"name":"albumxyz"}`, nil, http.StatusBadRequest, ""},
 		{"delete ok", "DELETE", "/users/1", ``, nil, http.StatusOK, ""},
-		//{"delete verify", "DELETE", "/users/1", ``, nil, http.StatusNotFound, ""}, //not working with mock repository for some reason
+		//{"delete verify", "DELETE", "/users/1", ``, nil, http.StatusNotFound, ""}, //FIXME not working with mock repository for some reason
 	}
 	for _, tc := range tests {
 		test.Endpoint(t, mockRouter, tc)
