@@ -16,6 +16,9 @@ func main() {
 	// Echo instance
 	e := echo.New()
 
+	// Static files
+	e.Static("/static", "assets")
+
 	// Middleware
 	e.Use(middleware.Recover())
 	e.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
@@ -37,6 +40,8 @@ func main() {
 	// Example of private and administrator routes
 	e.GET("/private", private, auth.IsLoggedIn)
 	e.GET("/admin", private, auth.IsLoggedIn, auth.IsAdmin)
+
+	e.File("/", "static/index.html")
 
 	// Start server
 	e.Logger.Fatal(e.Start(":1323"))
