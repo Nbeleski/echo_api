@@ -17,7 +17,7 @@ func TestRepository(t *testing.T) {
 	_, err = db.Exec("CREATE TABLE tab_users (id INTEGER PRIMARY KEY UNIQUE, user TEXT NOT NULL UNIQUE, password TEXT NOT NULL, acc_type INTEGER DEFAULT (0) CHECK (acc_type >= 0 AND acc_type <= 4));")
 	assert.Nil(t, err)
 
-	repo := NewRepository("sqlite3", "users_repo_test.db")
+	repo := NewRepository(db)
 	var ctx TestContext
 
 	// initial count

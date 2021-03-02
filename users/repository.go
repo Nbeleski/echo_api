@@ -17,22 +17,17 @@ type Repository interface {
 }
 
 type repository struct {
-	dbtype string
-	dbfile string
+	db *sql.DB
 }
 
 // NewRepository creates a new album repository
-func NewRepository(dbtype, dbfile string) Repository {
-	return repository{dbtype, dbfile}
+func NewRepository(db *sql.DB) Repository {
+	return repository{db}
 }
 
 func (r repository) Get(c echo.Context, id int) (models.User, error) {
 	var user models.User
-	database, err := sql.Open(r.dbtype, r.dbfile)
-	if err != nil {
-		return user, err
-	}
-	statement, err := database.Prepare("SELECT user, password, acc_type FROM tab_users WHERE id=?")
+	statement, err := r.db.Prepare("SELECT user, password, acc_type FROM tab_users WHERE id=?")
 	if err != nil {
 		return user, err
 	}
@@ -56,11 +51,7 @@ func (r repository) Get(c echo.Context, id int) (models.User, error) {
 
 func (r repository) Query(c echo.Context, offset, limit int) ([]models.User, error) {
 	var users []models.User
-	database, err := sql.Open(r.dbtype, r.dbfile)
-	if err != nil {
-		return users, err
-	}
-	statement, err := database.Prepare("SELECT t.id, t.user, t.password, t.acc_type FROM (SELECT * FROM tab_users LIMIT ? OFFSET ?) t ORDER BY id COLLATE NOCASE")
+	statement, err := r.db.Prepare("SELECT t.id, t.user, t.password, t.acc_type FROM (SELECT * FROM tab_users LIMIT ? OFFSET ?) t ORDER BY id COLLATE NOCASE")
 	if err != nil {
 		return users, err
 	}
@@ -85,11 +76,7 @@ func (r repository) Query(c echo.Context, offset, limit int) ([]models.User, err
 }
 
 func (r repository) Create(c echo.Context, user models.User) (int, error) {
-	database, err := sql.Open(r.dbtype, r.dbfile)
-	if err != nil {
-		return -1, err
-	}
-	statement, err := database.Prepare("INSERT INTO tab_users VALUES (null, ?, ? ,?)")
+	statement, err := r.db.Prepare("INSERT INTO tab_users VALUES (null, ?, ? ,?)")
 	if err != nil {
 		return -1, err
 	}
@@ -103,11 +90,7 @@ func (r repository) Create(c echo.Context, user models.User) (int, error) {
 }
 
 func (r repository) Update(c echo.Context, user models.User) error {
-	database, err := sql.Open(r.dbtype, r.dbfile)
-	if err != nil {
-		return err
-	}
-	statement, err := database.Prepare("UPDATE tab_users SET user=?, password=?, acc_type=? WHERE id=?")
+	statement, err := r.db.Prepare("UPDATE tab_users SET user=?, password=?, acc_type=? WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -116,11 +99,7 @@ func (r repository) Update(c echo.Context, user models.User) error {
 }
 
 func (r repository) Delete(c echo.Context, id int) error {
-	database, err := sql.Open(r.dbtype, r.dbfile)
-	if err != nil {
-		return err
-	}
-	statement, err := database.Prepare("DELETE FROM tab_users WHERE id=?")
+	statement, err := r.db.Prepare("DELETE FROM tab_users WHERE id=?")
 	if err != nil {
 		return err
 	}
@@ -137,11 +116,7 @@ func (r repository) Delete(c echo.Context, id int) error {
 }
 
 func (r repository) Count(c echo.Context) (int, error) {
-	database, err := sql.Open(r.dbtype, r.dbfile)
-	if err != nil {
-		return -1, err
-	}
 	var count int
-	err = database.QueryRow("SELECT COUNT(*) FROM tab_users").Scan(&count)
+	err := r.db.QueryRow("SELECT COUNT(*) FROM tab_users").Scan(&count)
 	return count, err
 }

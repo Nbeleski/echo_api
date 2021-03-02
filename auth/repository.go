@@ -12,22 +12,17 @@ type Repository interface {
 }
 
 type repository struct {
-	dbtype string
-	dbfile string
+	db *sql.DB
 }
 
 // NewRepository creates a new album repository
-func NewRepository(dbtype, dbfile string) Repository {
-	return repository{dbtype, dbfile}
+func NewRepository(db *sql.DB) Repository {
+	return repository{db}
 }
 
 func (r repository) GetByUser(c echo.Context, user string) (models.User, error) {
 	var saved_user models.User
-	database, err := sql.Open(r.dbtype, r.dbfile)
-	if err != nil {
-		return saved_user, err
-	}
-	statement, err := database.Prepare("SELECT password, acc_type FROM tab_users WHERE user=?")
+	statement, err := r.db.Prepare("SELECT password, acc_type FROM tab_users WHERE user=?")
 	if err != nil {
 		return saved_user, err
 	}

@@ -1,7 +1,10 @@
 package main
 
 import (
+	"database/sql"
+	"fmt"
 	"net/http"
+	"os"
 	"strconv"
 
 	"github.com/dgrijalva/jwt-go"
@@ -13,6 +16,10 @@ import (
 )
 
 func main() {
+	db, err := sql.Open("sqlite3", "test.db")
+	fmt.Fprintf(os.Stderr, "error: %v\n", err)
+	os.Exit(1)
+
 	// Echo instance
 	e := echo.New()
 
@@ -30,8 +37,8 @@ func main() {
 	// 	log.Println(string(reqBody))
 	// }))
 
-	login_service := auth.NewService(auth.NewRepository("sqlite3", "test.db"))
-	users_service := users.NewService(users.NewRepository("sqlite3", "test.db"))
+	login_service := auth.NewService(auth.NewRepository(db))
+	users_service := users.NewService(users.NewRepository(db))
 
 	// Routes
 	auth.RegisterHandlers(login_service, e)
