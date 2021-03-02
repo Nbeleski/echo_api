@@ -1,35 +1,101 @@
-<!DOCTYPE html>
-
-<script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+<!-- public/index.html -->
 
 <html>
 
 <head>
-    <div id="app-2">
-        <span v-bind:title="message">
-              Hover your mouse over me for a few seconds
-              to see my dynamically bound title!
-        </span>
-    </div>
+    <meta http-equiv="content-type" content="text/html; charset=utf-8">
+
+    <title>TODO App</title>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+
+    <!-- JQuery -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.2.4/jquery.min.js"></script>
+
+    <!-- Latest compiled and minified JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
+
+    <!-- Vue.js -->
+    <script src="http://cdnjs.cloudflare.com/ajax/libs/vue/1.0.24/vue.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vue-resource/0.7.0/vue-resource.min.js"></script>
 </head>
 
 <body>
-    <div id="app">
-        {{ message }}
+    <div class="container">
+        <div class="row">
+            <div class="col-md-4">
+                <h2>Users</h2>
+                <ul class="list-group">
+                    <li class="list-group-item" v-for="user in users">
+                        {{ user.acc_type }}: {{ user.user }}
+                        <span class="pull-right">
+                                <button class="btn btn-xs btn-danger" v-on:click="deleteUser($index)">
+                                    <i class="fa fa-trash-o" aria-hidden="true"></i>
+                                </button>
+                            </span>
+                    </li>
+                </ul>
+                <div class="input-group">
+                    <input type="text" class="form-control" placeholder="New User" v-on:keyup.enter="createUser" v-model="newUser.user">
+                    <span class="input-group-btn">
+                            <button class="btn btn-primary" type="button" v-on:click="createUser">Create</button>
+                        </span>
+                </div>
+                <!-- /input-group -->
+            </div>
+        </div>
     </div>
+    <!-- public/index.html -->
 
     <script>
-        var app = new Vue({
-            el: '#app',
-            data: {
-                message: 'Hello Vue!'
-            }
-        })
+        new Vue({
+            el: 'body',
 
-        var app2 = new Vue({
-            el: '#app-2',
             data: {
-                message: 'You loaded this page on ' + new Date().toLocaleString()
+                users: [],
+                newUser: {}
+            },
+
+            // This is run whenever the page is loaded to make sure we have a current task list
+            created: function() {
+                // Use the vue-resource $http client to fetch data from the /tasks route
+                this.$http.get('/users').then(function(response) {
+                    this.users = response.data.items ? response.data.items : []
+                })
+            },
+
+            methods: {
+                createUser: function() {
+                    if (!$.trim(this.newUser.user)) {
+                        this.newUser = {}
+                        return
+                    }
+
+                    // Post the new task to the /tasks route using the $http client
+                    this.$http.put('/users', this.newUser).success(function(response) {
+                        this.newUser.id = response.created
+                        this.users.push(this.newUser)
+                        console.log("User created!")
+                        console.log(this.newUser)
+                        this.newUser = {}
+                    }).error(function(error) {
+                        console.log(error)
+                    });
+                },
+
+                deleteUser: function(index) {
+                    // Use the $http client to delete a task by its id
+                    this.$http.delete('/users/' + this.users[index].id).success(function(response) {
+                        this.users.splice(index, 1)
+                        console.log("User deleted!")
+                    }).error(function(error) {
+                        console.log(error)
+                    })
+                }
             }
         })
     </script>
