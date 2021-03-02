@@ -17,8 +17,10 @@ import (
 
 func main() {
 	db, err := sql.Open("sqlite3", "test.db")
-	fmt.Fprintf(os.Stderr, "error: %v\n", err)
-	os.Exit(1)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
 
 	// Echo instance
 	e := echo.New()
