@@ -12,11 +12,18 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 
 	"echo_api/auth"
+	"echo_api/config"
 	"echo_api/users"
 )
 
 func main() {
-	db, err := sql.Open("sqlite3", "test.db")
+	config, err := config.LoadConfiguration("config.json")
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "error: %v\n", err)
+		os.Exit(1)
+	}
+
+	db, err := sql.Open(config.Database.Type, config.Database.File)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
@@ -53,7 +60,7 @@ func main() {
 	e.File("/", "static/index.html")
 
 	// Start server
-	e.Logger.Fatal(e.Start(":1323"))
+	e.Logger.Fatal(e.Start(config.Host + ":" + config.Port))
 }
 
 func private(c echo.Context) error {
