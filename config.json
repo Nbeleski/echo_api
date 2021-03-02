@@ -1,7 +1,7 @@
 {
     "database": {
-        "type": "sqlite3",
-        "file": "test.db"
+        "driver": "sqlite3",
+        "datasource": "test.db"
     },
     "host": "localhost",
     "port": "1323"

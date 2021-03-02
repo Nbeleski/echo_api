@@ -7,8 +7,8 @@ import (
 
 type Config struct {
 	Database struct {
-		Type string `json:"type"`
-		File string `json:"file"`
+		Driver     string `json:"driver"`
+		Datasource string `json:"datasource"`
 	} `json:"database"`
 
 	Host string `json:"host"`

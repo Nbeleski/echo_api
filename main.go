@@ -23,7 +23,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	db, err := sql.Open(config.Database.Type, config.Database.File)
+	db, err := sql.Open(config.Database.Driver, config.Database.Datasource)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "error: %v\n", err)
 		os.Exit(1)
