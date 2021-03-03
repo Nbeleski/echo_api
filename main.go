@@ -11,9 +11,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
-	"echo_api/auth"
-	"echo_api/config"
-	"echo_api/users"
+	"echo_api/pkg/config"
+	"echo_api/routes/auth"
+	"echo_api/routes/users"
 )
 
 func main() {

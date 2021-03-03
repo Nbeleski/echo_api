@@ -1,9 +1,9 @@
 package users
 
 import (
-	"echo_api/auth"
 	"echo_api/models"
-	"echo_api/test"
+	"echo_api/pkg/test"
+	"echo_api/routes/auth"
 	"net/http"
 	"testing"
 

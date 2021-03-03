@@ -1,8 +1,8 @@
 package users
 
 import (
-	"echo_api/auth"
 	"echo_api/models"
+	"echo_api/routes/auth"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
