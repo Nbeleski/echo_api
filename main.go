@@ -14,6 +14,7 @@ import (
 	"echo_api/pkg/authentication"
 	"echo_api/pkg/config"
 	"echo_api/routes/login"
+	"echo_api/routes/maps"
 	"echo_api/routes/users"
 )
 
@@ -50,10 +51,12 @@ func main() {
 	auth := authentication.NewService(config.JWT_secret)
 	login_service := login.NewService(login.NewRepository(db), config.JWT_secret)
 	users_service := users.NewService(users.NewRepository(db))
+	maps_service := maps.NewService(config.MapsAPIKey)
 
 	// Routes
 	login.RegisterHandlers(login_service, e)
-	users.RegisterHandlers(users_service, e, auth.IsLoggedIn())
+	users.RegisterHandlers(users_service, e, auth.IsLoggedIn()) //login only required for POST/PUT/DELETE
+	maps.RegisterHandlers(maps_service, e)
 
 	// Example of private and administrator routes
 	e.GET("/private", private, auth.IsLoggedIn())

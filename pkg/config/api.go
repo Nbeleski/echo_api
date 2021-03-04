@@ -14,6 +14,7 @@ type Config struct {
 	Host       string `json:"host"`
 	Port       string `json:"port"`
 	JWT_secret string `json:"jwt_secret"`
+	MapsAPIKey string `json:"maps_apikey"`
 }
 
 func LoadConfiguration(file string) (Config, error) {
