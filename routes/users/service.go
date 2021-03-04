@@ -2,7 +2,7 @@ package users
 
 import (
 	"echo_api/models"
-	"echo_api/routes/auth"
+	"echo_api/pkg/authentication"
 
 	validation "github.com/go-ozzo/ozzo-validation"
 	"github.com/labstack/echo/v4"
@@ -71,7 +71,7 @@ func (s service) Create(ctx echo.Context, req CreateUserRequest) (models.User, e
 	if err := req.Validate(); err != nil {
 		return models.User{}, err
 	}
-	hash, _ := auth.GenareteSaltedPassword([]byte(req.Password))
+	hash, _ := authentication.GenareteSaltedPassword([]byte(req.Password))
 	new_user := models.User{
 		Id:       0,
 		User:     req.User,
@@ -90,7 +90,7 @@ func (s service) Update(ctx echo.Context, id int, req UpdateUserRequest) (models
 	if err := req.Validate(); err != nil {
 		return models.User{}, err
 	}
-	hash, _ := auth.GenareteSaltedPassword([]byte(req.Password))
+	hash, _ := authentication.GenareteSaltedPassword([]byte(req.Password))
 	new_user := models.User{
 		Id:       id,
 		User:     req.User,

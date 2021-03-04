@@ -3,7 +3,6 @@ package users
 import (
 	"echo_api/models"
 	"echo_api/pkg/test"
-	"echo_api/routes/auth"
 	"net/http"
 	"testing"
 
@@ -24,7 +23,6 @@ func TestAPI(t *testing.T) {
 
 	service := NewService(repo)
 	RegisterHandlers(service, mockRouter)
-	mockRouter.GET("/private", Ok, auth.IsLoggedIn)
 
 	tests := []test.APITestCase{
 		{"get all", "GET", "/users", "", nil, http.StatusOK, `*"total_count":1*`},

@@ -11,8 +11,9 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 
+	"echo_api/pkg/authentication"
 	"echo_api/pkg/config"
-	"echo_api/routes/auth"
+	"echo_api/routes/login"
 	"echo_api/routes/users"
 )
 
@@ -46,16 +47,17 @@ func main() {
 	// 	log.Println(string(reqBody))
 	// }))
 
-	login_service := auth.NewService(auth.NewRepository(db))
+	auth := authentication.NewService(config.JWT_secret)
+	login_service := login.NewService(login.NewRepository(db))
 	users_service := users.NewService(users.NewRepository(db))
 
 	// Routes
-	auth.RegisterHandlers(login_service, e)
+	login.RegisterHandlers(login_service, e)
 	users.RegisterHandlers(users_service, e)
 
 	// Example of private and administrator routes
-	e.GET("/private", private, auth.IsLoggedIn)
-	e.GET("/admin", private, auth.IsLoggedIn, auth.IsAdmin)
+	e.GET("/private", private, auth.IsLoggedIn())
+	e.GET("/admin", private, auth.IsLoggedIn(), auth.IsAdmin)
 
 	e.File("/", "static/index.html")
 

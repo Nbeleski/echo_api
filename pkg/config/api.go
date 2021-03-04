@@ -11,8 +11,9 @@ type Config struct {
 		Datasource string `json:"datasource"`
 	} `json:"database"`
 
-	Host string `json:"host"`
-	Port string `json:"port"`
+	Host       string `json:"host"`
+	Port       string `json:"port"`
+	JWT_secret string `json:"jwt_secret"`
 }
 
 func LoadConfiguration(file string) (Config, error) {

@@ -4,5 +4,6 @@
         "datasource": "test.db"
     },
     "host": "localhost",
-    "port": "1323"
+    "port": "1323",
+    "jwt_secret": ""
 }
