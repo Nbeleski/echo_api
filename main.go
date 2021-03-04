@@ -48,12 +48,12 @@ func main() {
 	// }))
 
 	auth := authentication.NewService(config.JWT_secret)
-	login_service := login.NewService(login.NewRepository(db))
+	login_service := login.NewService(login.NewRepository(db), config.JWT_secret)
 	users_service := users.NewService(users.NewRepository(db))
 
 	// Routes
 	login.RegisterHandlers(login_service, e)
-	users.RegisterHandlers(users_service, e)
+	users.RegisterHandlers(users_service, e, auth.IsLoggedIn())
 
 	// Example of private and administrator routes
 	e.GET("/private", private, auth.IsLoggedIn())

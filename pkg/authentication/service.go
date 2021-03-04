@@ -13,7 +13,7 @@ type Service interface {
 }
 
 type service struct {
-	secret string
+	Secret string
 }
 
 func NewService(secret string) Service {
@@ -26,7 +26,7 @@ func NewService(secret string) Service {
 
 func (s service) IsLoggedIn() echo.MiddlewareFunc {
 	return middleware.JWTWithConfig(middleware.JWTConfig{
-		SigningKey: []byte(s.secret),
+		SigningKey: []byte(s.Secret),
 	})
 }
 

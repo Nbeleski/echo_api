@@ -8,18 +8,17 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-var secret = "OURAPI-f0ab801e-750d-11eb-9439-0242ac130002"
-
 type Service interface {
 	Login(ctx echo.Context, user, password string) string
 }
 
 type service struct {
-	repo Repository
+	repo   Repository
+	secret string
 }
 
-func NewService(repo Repository) Service {
-	return service{repo}
+func NewService(repo Repository, secret string) Service {
+	return service{repo, secret}
 }
 
 func (s service) Login(ctx echo.Context, form_user, form_password string) string {
@@ -39,7 +38,7 @@ func (s service) Login(ctx echo.Context, form_user, form_password string) string
 		claims["exp"] = time.Now().Add(time.Hour * 720).Unix()
 
 		// Generate encoded token and send it as response.
-		t, err = token.SignedString([]byte(secret))
+		t, err = token.SignedString([]byte(s.secret))
 		if err != nil {
 			return ""
 		}
