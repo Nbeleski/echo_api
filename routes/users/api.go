@@ -15,8 +15,8 @@ func RegisterHandlers(service Service, e *echo.Echo, m ...echo.MiddlewareFunc) {
 	res := resource{service}
 
 	e.POST("/users", res.create, m...)
-	e.GET("/users", res.query, m...)
-	e.GET("/users/:id", res.get, m...)
+	e.GET("/users", res.query)
+	e.GET("/users/:id", res.get)
 	e.PUT("/users/:id", res.update, m...)
 	e.DELETE("/users/:id", res.delete, m...)
 }
